@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Vue 测试实例</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<script src="jquery.js"></script>
+</head>
+<style>
+	/* 进度条 */
+body{
+    width:100%;
+    height: 100%;
+}
+.range {
+    width: 5.875rem;
+    height: 0.15rem;
+    background: #2386e4;
+    border-radius: 0.25rem;
+    -webkit-appearance: none !important;
+    position: absolute;
+    top: 3.55rem;
+    left: 6rem; 
+}
+/* 进度滑块 */
+.range::-webkit-slider-thumb {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #fff;
+    border: 1px solid #f18900;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    -webkit-appearance: none !important;
+}
+audio{
+	display: none;
+}
+</style>
+<body>
+
+<audio src="bg.mp3" autoplay controls id="ao"></audio>
+
+<span class='cur'></span>
+<input type="range" min=0 max=100 class='range' value=0>
+<span class='max'></span>
+<button class="play">播放/暂停</button>
+<script type="text/javascript">
+
+document.addEventListener('DOMContentLoaded', function () { //添加监听DOM 结构是否加载完，（不包含图片和其他资源）
+    var audios = document.getElementById('ao');//获取音乐标签的id
+    audios.play();
+});
+document.addEventListener("WeixinJSBridgeReady", function () { //监听微信准备就绪事件，只能在微信用
+    var audios = document.getElementById('ao');//获取音乐标签的id
+    audios.play();
+}, false);
+
+//将秒数转为00:00格式
+ function timeToStr(time) {
+     var m = 0,
+     s = 0,
+     _m = '00',
+     _s = '00';
+     time = Math.floor(time % 3600);
+    m = Math.floor(time / 60);
+    s = Math.floor(time % 60);
+    _s = s < 10 ? '0' + s : s + '';
+    _m = m < 10 ? '0' + m : m + '';
+    return _m + ":" + _s;
+}
+//获取音频时长
+getTime();
+function getTime() {
+    var duration;
+    setTimeout(function () {
+        duration =parseInt($("#ao")[0].duration);
+        if(isNaN(duration)) {
+            getTime();
+        }else{
+        	var audio=document.getElementById('ao');
+        	setInterval(function(){
+        			var t=parseInt(audio.currentTime);
+    				$(".range").attr({'max':duration});
+    				$('.max').html(timeToStr(duration));
+        			$(".range").val(t);
+    				$('.cur').text(timeToStr(t));
+    			},1000);
+            //触发播放事件
+			$('.play').on('click',function(){
+   				 if(audio.paused){
+   				 	audio.play()
+   				 	setInterval(function(){
+        				var t=parseInt(audio.currentTime);
+    					$(".range").attr({'max':duration});
+    					$('.max').html(timeToStr(duration));
+        				$(".range").val(t);
+    					$('.cur').text(timeToStr(t));
+    				},1000);
+   				 }else{
+   				 	audio.pause()
+    			
+   				 }
+			});
+
+        }
+    }, 10);
+}
+//监听滑块，可以拖动
+$(".range").on('change',function(){
+    document.getElementById('ao').currentTime=this.value;$(".range").val(this.value);
+});
+</script>
+</body>
+</html>
